@@ -1,0 +1,94 @@
+{
+    "Outputs": {
+        "InstanceAccess": {
+            "Description": "Command to use to access this instance using SSH",
+            "Value": {
+                "Fn::Join": [
+                    "",
+                    [
+                        "ssh -i ~/.ssh/LampKey.pem ubuntu@",
+                        {
+                            "Fn::GetAtt": [
+                                "Webserver",
+                                "PublicDnsName"
+                            ]
+                        }
+                    ]
+                ]
+            }
+        },
+        "WebUrl": {
+            "Description": "The URL of the web server",
+            "Value": {
+                "Fn::Join": [
+                    "",
+                    [
+                        "http://",
+                        {
+                            "Fn::GetAtt": [
+                                "Webserver",
+                                "PublicDnsName"
+                            ]
+                        }
+                    ]
+                ]
+            }
+        }
+    },
+    "Parameters": {
+        "KeyName": {
+            "Description": "Name of the SSH key pair that will be used to access the instance",
+            "Type": "String"
+        }
+    },
+    "Resources": {
+        "LampSg": {
+            "Properties": {
+                "GroupDescription": "Allow access through ports 80 and 22 to the web server",
+                "SecurityGroupIngress": [
+                    {
+                        "CidrIp": "0.0.0.0/0",
+                        "FromPort": "22",
+                        "IpProtocol": "tcp",
+                        "ToPort": "22"
+                    },
+                    {
+                        "CidrIp": "0.0.0.0/0",
+                        "FromPort": "80",
+                        "IpProtocol": "tcp",
+                        "ToPort": "80"
+                    }
+                ]
+            },
+            "Type": "AWS::EC2::SecurityGroup"
+        },
+        "Webserver": {
+            "Properties": {
+                "ImageId": "ami-e94e5e8a",
+                "InstanceType": "t2.micro",
+                "KeyName": {
+                    "Ref": "KeyName"
+                },
+                "SecurityGroups": [
+                    {
+                        "Ref": "LampSg"
+                    }
+                ],
+                "UserData": {
+                    "Fn::Base64": {
+                        "Fn::Join": [
+                            "\n",
+                            [
+                                "#!/bin/bash",
+                                "sudo apt-get update && sudo apt-get install apache2 -y",
+                                "sudo echo abc > /var/www/html/test.html",
+                                "service apache2 restart"
+                            ]
+                        ]
+                    }
+                }
+            },
+            "Type": "AWS::EC2::Instance"
+        }
+    }
+}
