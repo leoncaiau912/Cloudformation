@@ -1,0 +1,81 @@
+{
+    "Outputs": {
+        "InstanceAccess": {
+            "Description": "Command to use to access this instance using SSH",
+            "Value": {
+                "Fn::Join": [
+                    "",
+                    [
+                        "ssh -i ~/.ssh/LampKey.pem ubuntu@",
+                        {
+                            "Fn::GetAtt": [
+                                "Jenkins",
+                                "PublicDnsName"
+                            ]
+                        }
+                    ]
+                ]
+            }
+        },
+        "WebUrl": {
+            "Description": "The URL of the web server",
+            "Value": {
+                "Fn::Join": [
+                    "",
+                    [
+                        "http://",
+                        {
+                            "Fn::GetAtt": [
+                                "Jenkins",
+                                "PublicDnsName"
+                            ]
+                        }
+                    ]
+                ]
+            }
+        }
+    },
+    "Parameters": {
+        "KeyName": {
+            "Description": "Name of the SSH key pair that will be used to access the instance",
+            "Type": "String"
+        }
+    },
+    "Resources": {
+        "Jenkins": {
+            "Properties": {
+                "ImageId": "ami-e94e5e8a",
+                "InstanceType": "t2.micro",
+                "KeyName": {
+                    "Ref": "KeyName"
+                },
+                "SecurityGroups": [
+                    {
+                        "Ref": "LampSg"
+                    }
+                ]
+            },
+            "Type": "AWS::EC2::Instance"
+        },
+        "LampSg": {
+            "Properties": {
+                "GroupDescription": "Allow access through ports 8080 and 22 to the web server",
+                "SecurityGroupIngress": [
+                    {
+                        "CidrIp": "0.0.0.0/0",
+                        "FromPort": "22",
+                        "IpProtocol": "tcp",
+                        "ToPort": "22"
+                    },
+                    {
+                        "CidrIp": "0.0.0.0/0",
+                        "FromPort": "8080",
+                        "IpProtocol": "tcp",
+                        "ToPort": "8080"
+                    }
+                ]
+            },
+            "Type": "AWS::EC2::SecurityGroup"
+        }
+    }
+}
