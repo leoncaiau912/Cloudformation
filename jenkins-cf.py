@@ -22,7 +22,7 @@ keypair = t.add_parameter(Parameter(
    ))
 
 instance = ec2.Instance("Jenkins")
-instance.ImageId = "ami-e94e5e8a"
+instance.ImageId = "ami-423bec20"
 instance.InstanceType = "t2.micro"
 instance.SecurityGroups = [Ref(sg)]
 instance.KeyName = Ref(keypair)
@@ -33,7 +33,7 @@ t.add_resource(instance)
 t.add_output(Output(
 	"InstanceAccess",
 	Description = "Command to use to access this instance using SSH",
-	Value = Join("",["ssh -i ~/.ssh/LampKey.pem ubuntu@", GetAtt(instance, "PublicDnsName")])
+	Value = Join("",["ssh -i ~/.ssh/LampKey.pem ec2-user@", GetAtt(instance, "PublicDnsName")])
 	))
 t.add_output(Output(
 	"WebUrl",

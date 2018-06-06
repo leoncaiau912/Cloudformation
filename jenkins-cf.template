@@ -6,7 +6,7 @@
                 "Fn::Join": [
                     "",
                     [
-                        "ssh -i ~/.ssh/LampKey.pem ubuntu@",
+                        "ssh -i ~/.ssh/LampKey.pem ec2-user@",
                         {
                             "Fn::GetAtt": [
                                 "Jenkins",
@@ -44,7 +44,7 @@
     "Resources": {
         "Jenkins": {
             "Properties": {
-                "ImageId": "ami-e94e5e8a",
+                "ImageId": "ami-423bec20",
                 "InstanceType": "t2.micro",
                 "KeyName": {
                     "Ref": "KeyName"
